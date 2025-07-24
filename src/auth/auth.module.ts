@@ -10,13 +10,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
+import { EmailVerification } from './email-verification/email-verification.entity';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     MailModule,
-    TypeOrmModule.forFeature([User]), 
+    ConfigModule,
+    TypeOrmModule.forFeature([User, EmailVerification]), 
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -27,6 +31,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, EmailVerificationService, JwtService],
+  providers: [AuthService, EmailVerificationService, JwtStrategy, LocalStrategy],
+  exports: [AuthService]
 })
 export class AuthModule {}

@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Post, Query, UnauthorizedException } from '@nestjs/common';
-import { Auth } from 'typeorm';
+import { Body, Controller, Get, Post, Query, UnauthorizedException, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -13,10 +13,10 @@ export class AuthController {
         return this.authService.register(createUserDto);
     }
 
+    @UseGuards(LocalAuthGuard)
     @Post('login')
-    async login(@Body() loginDto: LoginDto) {
-        const validatedUser = await this.authService.validateUser(loginDto.email, loginDto.password);
-        return this.authService.login(validatedUser);
+    async login(@Request() req) {
+        return this.authService.login(req.user);
     }
 
     @Get('verify')

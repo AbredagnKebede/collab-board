@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { use } from 'passport';
 
@@ -35,5 +35,12 @@ export class UsersService {
 
     async findAll(): Promise<User[]> {
         return this.userRepository.find();
+    }
+    async deleteById(userId: number): Promise<DeleteResult> {
+        const user = await this.userRepository.findOneBy({id: userId});
+        if(!user) {
+            throw new UnauthorizedException('User not found');
+        }
+        return this.userRepository.delete(userId);
     }
 }
