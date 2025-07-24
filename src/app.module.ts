@@ -9,9 +9,35 @@ import { ListsModule } from './lists/lists.module';
 import { CardsModule } from './cards/cards.module';
 import { CommentsModule } from './comments/comments.module';
 import { MailModule } from './mail/mail.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule, UsersModule, ProjectsModule, BoardsModule, ListsModule, CardsModule, CommentsModule, MailModule],
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule, MailModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: parseInt(configService.get('DB_PORT') || '5432'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+    }),
+    AuthModule,
+    UsersModule,
+    ProjectsModule,
+    BoardsModule,
+    ListsModule,
+    CardsModule, 
+    CommentsModule, 
+    MailModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

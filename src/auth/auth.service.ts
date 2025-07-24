@@ -17,7 +17,7 @@ export class AuthService {
     ) {}
     
     async register(createUserDto: CreateUserDto): Promise<any> {
-        const user = await this this.userService.create(createUserDto);
+        const user = await this.userService.create(createUserDto);
         const token = await this.emailVerificationService.generateToken(user.id);
         await this.mailService.sendVerificationEmail(user.email, token);
         return { message: 'User registered successfully. Please check your email to verify your account.' };
