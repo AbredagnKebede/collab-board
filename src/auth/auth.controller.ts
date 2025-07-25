@@ -19,7 +19,7 @@ export class AuthController {
         return this.authService.login(req.user);
     }
 
-    @Get('verify')
+    @Get('verify-email')
     async verifyEmail(@Query('token') token: string) {
         const result = await this.authService.verifyEmail(token);
         if(!result) {

@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";   
+import { Project } from "src/projects/entities/project.entity";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToMany } from "typeorm";   
 
 @Entity()
 export class User {
@@ -19,6 +20,12 @@ export class User {
 
     @Column({ default: false })
     isEmailVerified: boolean;
+
+    @OneToMany(() => Project, project => project.createdBy)
+    projects: Project[];
+
+    @ManyToMany(() => Project, project => project.members)
+    projectsAsMember: Project[];
 
     @CreateDateColumn()
     createdAt: Date;
