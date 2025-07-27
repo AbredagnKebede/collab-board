@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable} from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany} from "typeorm";
 import { User } from "../../users/entities/user.entity";
+import { Board } from "src/boards/entities/board.entity";
 
 @Entity()
 export class Project {
@@ -18,6 +19,9 @@ export class Project {
     @ManyToMany(() => User)
     @JoinTable()
     members: User[];
+    
+    @OneToMany(() => Board, board => board.project, { cascade: true })
+    boards: Board[];
 
     @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
