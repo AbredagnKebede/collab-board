@@ -1,3 +1,4 @@
+import { Board } from "src/boards/entities/board.entity";
 import { Project } from "src/projects/entities/project.entity";
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToMany } from "typeorm";   
 
@@ -27,6 +28,9 @@ export class User {
     @ManyToMany(() => Project, project => project.members)
     projectsAsMember: Project[];
 
+    @OneToMany(() => Board, board => board.createdBy)
+    boards: Board[];
+    
     @CreateDateColumn()
     createdAt: Date;
 
