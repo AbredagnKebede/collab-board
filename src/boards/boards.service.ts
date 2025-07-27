@@ -12,10 +12,10 @@ import { UpdateBoardtDto } from './dto/update-board.dto';
 export class BoardsService {
     constructor(
         @InjectRepository(Board)
-        private readonly boardsRepository: Repository<Board>,
+        private boardsRepository: Repository<Board>,
         
         @InjectRepository(Project)
-        private readonly projectRepository: Repository<Project>,     
+        private projectRepository: Repository<Project>,     
     ) {}
 
     async create(createBoardDto: CreateBoardDto, user: User) {
