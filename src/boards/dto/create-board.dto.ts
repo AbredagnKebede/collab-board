@@ -6,5 +6,5 @@ export class CreateBoardDto {
     title: string; 
 
     @IsUUID()
-    peojectId: string;
+    peojectId: number;
 }
