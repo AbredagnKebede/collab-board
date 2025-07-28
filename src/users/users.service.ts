@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { DeleteResult, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { use } from 'passport';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 
 @Injectable()
@@ -26,7 +26,7 @@ export class UsersService {
     }
 
     async findByEmail(email: string): Promise<User | null> {
-        return this.userRepository.findOneBy({email});
+        return this.userRepository.findOne({where: {email}, relations: ['projects', 'projectsAsMember', 'boards']});
     }
 
     async verifyEmail(userId: number): Promise<void> {
@@ -34,13 +34,23 @@ export class UsersService {
     }
 
     async findAll(): Promise<User[]> {
-        return this.userRepository.find();
+        return this.userRepository.find({relations: ['projects', 'projectsAsMember', 'boards']});
     }
+
     async deleteById(userId: number): Promise<DeleteResult> {
         const user = await this.userRepository.findOneBy({id: userId});
         if(!user) {
             throw new UnauthorizedException('User not found');
         }
         return this.userRepository.delete(userId);
+    }
+
+    async update(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
+        const user = await this.userRepository.preload({
+            id: userId,
+            ...updateUserDto
+        });
+        if (!user) throw new UnauthorizedException('User not found');
+        return this.userRepository.save(user);
     }
 }

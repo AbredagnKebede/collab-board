@@ -16,7 +16,7 @@ export class Project {
     @ManyToOne(() => User, user => user.projects)
     createdBy: User;
 
-    @ManyToMany(() => User)
+    @ManyToMany(() => User, user => user.projectsAsMember)
     @JoinTable()
     members: User[];
     
