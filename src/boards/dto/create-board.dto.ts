@@ -1,10 +1,10 @@
-import { IsNotEmpty, IsString, IsUUID } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber } from "class-validator"
 
 export class CreateBoardDto {
     @IsNotEmpty()
     @IsString()
     title: string; 
 
-    @IsUUID()
-    peojectId: number;
+    @IsNumber()
+    projectId: number;
 }

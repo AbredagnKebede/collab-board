@@ -4,7 +4,7 @@ import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Request } from 'express';
-import { UpdateBoardtDto } from './dto/update-board.dto';
+import { UpdateBoardDto } from './dto/update-board.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('boards')
@@ -18,21 +18,26 @@ export class BoardsController {
     }
 
     @Get()
-    async findAll() {
-        return this.boardsService.findAll();
+    async findAll(@Req() req: Request) {
+        const user = req.user as User;
+        return this.boardsService.findAll(user);
     }
+    
     @Get(':id')
-    async findOne(@Param('id') id: string) {
-        return this.boardsService.findOne(+id);
+    async findOne(@Param('id') id: string, @Req() req: Request) {
+        const user = req.user as User;
+        return this.boardsService.findOne(+id, user);
     }
 
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardtDto) {
-        return this.boardsService.update(+id, updateBoardDto);
+    async update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto, @Req() req: Request) {
+        const user = req.user as User;
+        return this.boardsService.update(+id, updateBoardDto, user);
     }
 
     @Delete(':id') 
-    async remove(@Param('id') id: string) {
-        return this.boardsService.remove(+id);
+    async remove(@Param('id') id: string, @Req() req: Request) {
+        const user = req.user as User;
+        return this.boardsService.remove(+id, user);
     }
 }
