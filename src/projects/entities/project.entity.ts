@@ -1,31 +1,41 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany} from "typeorm";
-import { User } from "../../users/entities/user.entity";
-import { Board } from "src/boards/entities/board.entity";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Board } from 'src/boards/entities/board.entity';
 
 @Entity()
 export class Project {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column({nullable: true})
-    description: string;
+  @Column({ nullable: true })
+  description: string;
 
-    @ManyToOne(() => User, user => user.projects)
-    createdBy: User;
+  @ManyToOne(() => User, (user) => user.projects, { eager: false })
+  createdBy: User;
 
-    @ManyToMany(() => User, user => user.projectsAsMember)
-    @JoinTable()
-    members: User[];
-    
-    @OneToMany(() => Board, board => board.project, { cascade: true })
-    boards: Board[];
+  @ManyToMany(() => User, (user) => user.projectsAsMember, { cascade: true })
+  @JoinTable()
+  members: User[];
 
-    @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
+  @OneToMany(() => Board, (board) => board.project, { cascade: true })
+  boards: Board[];
 
-    @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

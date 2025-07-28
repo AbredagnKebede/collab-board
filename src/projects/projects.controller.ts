@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Delete,
-  Param,
-  Body,
-  UseGuards,
-  Req,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, UnauthorizedException} from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -20,35 +9,58 @@ import { Request } from 'express';
 @UseGuards(JwtAuthGuard)
 @Controller('projects')
 export class ProjectsController {
-    constructor(private readonly projectsSevice: ProjectsService) {}
-    
-    @Post('create')
-    async create(@Body() createProjectDto: CreateProjectDto, @Req() req: Request) {
-        const user = req.user as User; 
-        return this.projectsSevice.create(createProjectDto, user);
-    }
+  constructor(private readonly projectsService: ProjectsService) {}
 
-    @Get()
-    async findAll(@Req() req: Request) {
-        const user = req.user as User;
-        return this.projectsSevice.findAll(user);
-    }
+  @Post()
+  async create(@Body() dto: CreateProjectDto, @Req() req: Request) {
+    const user = req.user as User;
+    this.ensureAuthenticated(user);
+    return this.projectsService.create(dto, user);
+  }
 
-    @Get(':id')
-    async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-        const user = req.user as User;
-        return this.projectsSevice.findOne(id, user);
-    }
+  @Get()
+  async findAll(@Req() req: Request) {
+    const user = req.user as User;
+    this.ensureAuthenticated(user);
+    return this.projectsService.findAll(); 
+  }
 
-    @Patch(':id')
-    async update(@Param('id', ParseIntPipe) id: number, @Body() updateProjectDto: UpdateProjectDto, @Req() req: Request) {
-        const user = req.user as User;
-        return this.projectsSevice.update(id, updateProjectDto, user);
-    }
+  @Get(':id')
+  async findOne(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as User;
+    this.ensureAuthenticated(user);
+    return this.projectsService.findOne(+id, user);
+  }
 
-    @Delete(':id')
-    async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-        const user = req.user as User;
-        return this.projectsSevice.remove(id, user);
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateProjectDto,
+    @Req() req: Request,
+  ) {
+    const user = req.user as User;
+    this.ensureAuthenticated(user);
+    return this.projectsService.update(+id, dto, user);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as User;
+    this.ensureAuthenticated(user);
+    return this.projectsService.remove(+id, user);
+  }
+
+  @Get('me')
+  async getCurrentUser(@Req() req: Request) {
+    const user = req.user as User;
+    this.ensureAuthenticated(user);
+    const { password, ...safeUser } = user;
+    return safeUser;
+  }
+
+  private ensureAuthenticated(user: User | undefined): void {
+    if (!user || !user.id) {
+      throw new UnauthorizedException('User not authenticated');
     }
+  }
 }
