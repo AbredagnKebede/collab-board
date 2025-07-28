@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Board } from './entities/board.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from 'src/projects/entities/project.entity';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -42,16 +42,19 @@ export class BoardsService {
     async findAll(user: User) {
         const userProjects = await this.projectRepository
             .createQueryBuilder('project')
-            .leftJoinAndSelect('project.members', 'members')
-            .where('project.createdBy.email = :userEmail', { userEmail: user.email })
+            .leftJoin('project.createdBy', 'creator')         
+            .leftJoinAndSelect('project.members', 'members')  
+            .where('creator.email = :userEmail', { userEmail: user.email })
             .orWhere('members.email = :userEmail', { userEmail: user.email })
             .getMany();
 
         const projectIds = userProjects.map(project => project.id);
-        
+
+        if (!projectIds.length) return [];
+
         return this.boardsRepository.find({
-            where: { project: { id: projectIds } as any },
-            relations: ['project', 'createdBy']
+            where: { project: { id: In(projectIds) } }, 
+            relations: ['project', 'createdBy'],
         });
     }
 
