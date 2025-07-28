@@ -28,22 +28,26 @@ export class ProjectsController {
     }
 
     @Get()
-    async findAll() {
-        return this.projectsSevice.findAll();
+    async findAll(@Req() req: Request) {
+        const user = req.user as User;
+        return this.projectsSevice.findAll(user);
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
-        return this.projectsSevice.findOne(+id);
+    async findOne(@Param('id') id: string, @Req() req: Request) {
+        const user = req.user as User;
+        return this.projectsSevice.findOne(+id, user);
     }
 
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-        return this.projectsSevice.update(id, updateProjectDto);
+    async update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto, @Req() req: Request) {
+        const user = req.user as User;
+        return this.projectsSevice.update(+id, updateProjectDto, user);
     }
 
     @Delete(':id')
-    async remove(@Param('id') id: string) { 
-        return this.projectsSevice.remove(id);
+    async remove(@Param('id') id: string, @Req() req: Request) { 
+        const user = req.user as User;
+        return this.projectsSevice.remove(+id, user);
     }
 }

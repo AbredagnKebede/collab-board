@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
 import { Repository } from 'typeorm';
@@ -22,31 +22,64 @@ export class ProjectsService {
         return this.projectRepository.save(project);
     }
 
-    async findAll() {
-        return this.projectRepository.find({relations: ['createdBy', 'members']});
+    async findAll(user: User) {
+        return this.projectRepository
+            .createQueryBuilder('project')
+            .leftJoinAndSelect('project.createdBy', 'createdBy')
+            .leftJoinAndSelect('project.members', 'members')
+            .where('project.createdBy.id = :userId', { userId: user.id })
+            .orWhere('members.id = :userId', { userId: user.id })
+            .getMany();
     }
 
-    async findOne(id: number) {
+    async findOne(id: number, user: User) {
         const project = await this.projectRepository.findOne({
             where: {id}, 
             relations: ['createdBy', 'members']
         });
-    if (!project) throw new NotFoundException('Project not found');
-    return project;
+        if (!project) throw new NotFoundException('Project not found');
+        
+        const hasAccess = project.createdBy.id === user.id || 
+                         project.members.some(member => member.id === user.id);
+        if (!hasAccess) {
+            throw new ForbiddenException('You do not have access to this project');
+        }
+        
+        return project;
     }
 
-    async update(id: string, updateProjectDto:UpdateProjectDto) {
-        const project = await this.projectRepository.preload({
+    async update(id: number, updateProjectDto: UpdateProjectDto, user: User) {
+        const project = await this.projectRepository.findOne({
+            where: { id: +id },
+            relations: ['createdBy', 'members']
+        });
+        if (!project) throw new NotFoundException('Project not found');
+        
+        if (project.createdBy.id !== user.id) {
+            throw new ForbiddenException('Only the project creator can update this project');
+        }
+        
+        const updatedProject = await this.projectRepository.preload({
             id: +id,
             ...updateProjectDto,
         });
-        if (!project) throw new NotFoundException('Project not found');
-        return this.projectRepository.save(project);
+        if (!updatedProject) {
+            throw new NotFoundException('Project not found');
+        }
+        return this.projectRepository.save(updatedProject);
     }
 
-    async remove(id: string) {
-        const project = await this.projectRepository.findOne({ where: { id: +id } });
-        if (!project) throw new NotFoundException('Project not found'); 
+    async remove(id: number, user: User) {
+        const project = await this.projectRepository.findOne({ 
+            where: { id: +id },
+            relations: ['createdBy', 'members']
+        });
+        if (!project) throw new NotFoundException('Project not found');
+        
+        if (project.createdBy.id !== user.id) {
+            throw new ForbiddenException('Only the project creator can delete this project');
+        }
+        
         return this.projectRepository.remove(project);
     }
 }
