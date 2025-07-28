@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -24,20 +24,20 @@ export class BoardsController {
     }
     
     @Get(':id')
-    async findOne(@Param('id') id: string, @Req() req: Request) {
+    async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
         const user = req.user as User;
-        return this.boardsService.findOne(+id, user);
+        return this.boardsService.findOne(id, user);
     }
 
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto, @Req() req: Request) {
+    async update(@Param('id', ParseIntPipe) id: number, @Body() updateBoardDto: UpdateBoardDto, @Req() req: Request) {
         const user = req.user as User;
-        return this.boardsService.update(+id, updateBoardDto, user);
+        return this.boardsService.update(id, updateBoardDto, user);
     }
 
     @Delete(':id') 
-    async remove(@Param('id') id: string, @Req() req: Request) {
+    async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
         const user = req.user as User;
-        return this.boardsService.remove(+id, user);
+        return this.boardsService.remove(id, user);
     }
 }

@@ -18,7 +18,10 @@ export class BoardsService {
     ) {}
 
     async create(createBoardDto: CreateBoardDto, user: User) {
-        const project = await this.projectRepository.findOneBy({id: createBoardDto.projectId});
+        const project = await this.projectRepository.findOne({
+            where: {id: createBoardDto.projectId},
+            relations: ['createdBy', 'members']
+        });
         if(!project) throw new NotFoundException('Project not found');
 
         const hasAccess = project.createdBy.id === user.id || 
@@ -40,8 +43,8 @@ export class BoardsService {
         const userProjects = await this.projectRepository
             .createQueryBuilder('project')
             .leftJoinAndSelect('project.members', 'members')
-            .where('project.createdBy.id = :userId', { userId: user.id })
-            .orWhere('members.id = :userId', { userId: user.id })
+            .where('project.createdBy.email = :userEmail', { userEmail: user.email })
+            .orWhere('members.email = :userEmail', { userEmail: user.email })
             .getMany();
 
         const projectIds = userProjects.map(project => project.id);
@@ -59,9 +62,9 @@ export class BoardsService {
         });
 
         if(!board) throw new NotFoundException('Board not found');
-        
-        const hasAccess = board.project.createdBy.id === user.id || 
-                         board.project.members.some(member => member.id === user.id);
+
+        const hasAccess = board.project.createdBy.email === user.email || 
+                         board.project.members.some(member => member.email === user.email);
         if (!hasAccess) {
             throw new ForbiddenException('You do not have access to this board');
         }
@@ -76,14 +79,14 @@ export class BoardsService {
         });
 
         if(!board) throw new NotFoundException('Board not found');
-        
-        const hasAccess = board.project.createdBy.id === user.id || 
-                         board.project.members.some(member => member.id === user.id);
+
+        const hasAccess = board.project.createdBy.email === user.email || 
+                         board.project.members.some(member => member.email === user.email);
         if (!hasAccess) {
             throw new ForbiddenException('You do not have access to this board');
         }
 
-        if (board.createdBy.id !== user.id) {
+        if (board.createdBy.email !== user.email) {
             throw new ForbiddenException('Only the board creator can update this board');
         }
 
@@ -107,13 +110,13 @@ export class BoardsService {
         
         if(!board) throw new NotFoundException('Board not found');
 
-         const hasAccess = board.project.createdBy.id === user.id || 
-                         board.project.members.some(member => member.id === user.id);
+         const hasAccess = board.project.createdBy.email === user.email || 
+                         board.project.members.some(member => member.email === user.email);
         if (!hasAccess) {
             throw new ForbiddenException('You do not have access to this board');
         }
 
-        if (board.createdBy.id !== user.id) {
+        if (board.createdBy.email !== user.email) {
             throw new ForbiddenException('Only the board creator can delete this board');
         }
 
