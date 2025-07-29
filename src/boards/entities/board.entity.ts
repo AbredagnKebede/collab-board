@@ -1,6 +1,7 @@
+import { List } from "src/lists/entities/list.entity";
 import { Project } from "src/projects/entities/project.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Board {
@@ -15,6 +16,9 @@ export class Board {
 
     @ManyToOne(() => User, user => user.boards)
     createdBy: User;
+
+    @OneToMany(() => List, list => list.board)
+    lists: List[]
     
     @CreateDateColumn()
     createdAt: Date;    
