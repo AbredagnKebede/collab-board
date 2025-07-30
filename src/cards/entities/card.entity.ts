@@ -1,7 +1,7 @@
-import { timeStamp } from "console";
 import { List } from "src/lists/entities/list.entity";
 import { User } from "src/users/entities/user.entity";
 import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, ManyToMany, JoinTable, OneToMany, CreateDateColumn } from "typeorm";
+import { Comment } from "src/comments/entities/comment.entity";
 
 @Entity()
 export class Card{
