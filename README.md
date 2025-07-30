@@ -113,9 +113,12 @@ collab-board-api/
 │   │   ├── guards/
 │   │   │   ├── jwt-auth.guard.ts
 │   │   │   └── local-auth.guard.ts
-│   │   └── dto/
-│   │       ├── login.dto.ts
-│   │       └── register.dto.ts
+│   │   │── dto/
+│   │   │    ├── login.dto.ts
+│   │   │    └── register.dto.ts
+│   │   ├── email-verification/
+│   │   │   ├── email-verification.entity.ts
+│   │   │   └── email-verification.service.ts
 │   ├── users/
 │   │   ├── users.module.ts
 │   │   ├── users.controller.ts
@@ -169,9 +172,9 @@ collab-board-api/
 │   │   └── dto/
 │   │       ├── create-comment.dto.ts
 │   │       └── update-comment.dto.ts
-│   ├── email/
-│   │   ├── email.module.ts
-│   │   └── email.service.ts
+│   ├── mail/
+│   │   ├── mail.module.ts
+│   │   └── mail.service.ts
 │   └── common/
 │       ├── decorators/
 │       ├── filters/
