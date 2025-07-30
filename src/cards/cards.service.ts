@@ -34,15 +34,21 @@ export class CardsService {
             const users = await this.userRepository.findBy({
                 id: In(createCardDto.assigneeIds)
             });
+
+            card.assignees = users;
         }
         return this.cardRepository.save(card);
     }
 
     async findAll() {
-        return this.cardRepository.find({
-            relations: ['list', 'assignees', 'comments'],
-        });
-    }
+        return this.cardRepository
+            .createQueryBuilder('card')
+            .leftJoinAndSelect('card.list', 'list')
+            .leftJoinAndSelect('card.assignees', 'assignees')
+            .leftJoinAndSelect('card.comments', 'comments')
+            .getMany();
+        }
+
 
     async findOne(id: number) {
         const card = await this.cardRepository.findOne({
